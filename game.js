@@ -521,24 +521,28 @@ function updateEnemies() {
       e.jumpCooldown = 40 + Math.random() * 40;
     }
 
-    if (e.type === "red" && e.shotCooldown <= 0 && Math.random() < 0.03) {
-      const targetX = player.x + player.w / 2;
-      const targetY = player.y + player.h / 2;
-      const dx = targetX - (e.x + e.w / 2);
-      const dy = targetY - (e.y + e.h / 2);
-      const dist = Math.hypot(dx, dy) || 1;
-      const shotSpeed = 5;
-      projectiles.push({
-        x: e.x + e.w / 2,
-        y: e.y + e.h / 2,
-        r: 6,
-        vx: (dx / dist) * shotSpeed,
-        vy: (dy / dist) * shotSpeed,
-        life: 120,
-        rot: 0,
-        hostile: true,
-      });
-      e.shotCooldown = 90 + Math.random() * 60;
+    if (e.type === "red" && e.shotCooldown <= 0) {
+      const shotChance = Math.min(0.08, 0.03 + waveNumber * 0.002);
+      if (Math.random() < shotChance) {
+        const targetX = player.x + player.w / 2;
+        const targetY = player.y + player.h / 2;
+        const dx = targetX - (e.x + e.w / 2);
+        const dy = targetY - (e.y + e.h / 2);
+        const dist = Math.hypot(dx, dy) || 1;
+        const shotSpeed = 5;
+        projectiles.push({
+          x: e.x + e.w / 2,
+          y: e.y + e.h / 2,
+          r: 6,
+          vx: (dx / dist) * shotSpeed,
+          vy: (dy / dist) * shotSpeed,
+          life: 120,
+          rot: 0,
+          hostile: true,
+        });
+        const baseCooldown = 90 + Math.random() * 60;
+        e.shotCooldown = Math.max(40, baseCooldown - waveNumber * 3);
+      }
     }
 
     if (e.type === "boss" && e.shotCooldown <= 0) {
