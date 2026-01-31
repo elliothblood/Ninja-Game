@@ -168,9 +168,9 @@ function spawnEnemies(keepGhosts = true) {
       enemies.push({
         x: Math.max(40, Math.min(canvas.width - 60, x)),
         y: 0,
-        w: isPurple ? 18 : 26,
-        h: isPurple ? 26 : 40,
-        vx: isPurple ? 2.5 + Math.random() * 1.1 : 1.1 + Math.random() * 0.8,
+        w: isPurple ? 16 : 26,
+        h: isPurple ? 24 : 40,
+        vx: isPurple ? 2.8 + Math.random() * 1.2 : 1.1 + Math.random() * 0.8,
         vy: 0,
         dir: Math.random() < 0.5 ? -1 : 1,
         onGround: false,
@@ -811,7 +811,7 @@ function drawEnemies() {
     else if (e.type === "red") ctx.strokeStyle = "#ff6b6b";
     else if (e.type === "green") ctx.strokeStyle = "#74d680";
     else if (e.type === "pink") ctx.strokeStyle = "#f472b6";
-    else if (e.type === "purple") ctx.strokeStyle = "#7c3aed";
+    else if (e.type === "purple") ctx.strokeStyle = "#a21caf";
     else if (e.type === "boss") ctx.strokeStyle = "#f97316";
     else ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = e.type === "boss" ? 4 : 3;
