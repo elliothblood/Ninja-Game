@@ -131,6 +131,38 @@ function repositionAllPlatforms() {
   });
 }
 
+function isSafeSpawn(x, y) {
+  const playerBox = { x, y, w: player.w, h: player.h };
+  const touchesTrap = traps.some((t) => rectsOverlap(playerBox, t));
+  if (touchesTrap) return false;
+  const touchesEnemy = enemies.some((e) => rectsOverlap(playerBox, e));
+  if (touchesEnemy) return false;
+  const touchesProjectile = projectiles.some((p) =>
+    rectsOverlap(playerBox, { x: p.x - p.r, y: p.y - p.r, w: p.r * 2, h: p.r * 2 })
+  );
+  if (touchesProjectile) return false;
+  return true;
+}
+
+function findSafeSpawn() {
+  const candidates = platforms
+    .filter((p) => p.y < canvas.height - 20)
+    .map((p) => ({
+      x: p.x + p.w / 2 - player.w / 2,
+      y: p.y - player.h,
+    }));
+  candidates.push({ x: spawnPoint.x, y: spawnPoint.y });
+  for (let i = 0; i < 12; i += 1) {
+    const spot = candidates[Math.floor(Math.random() * candidates.length)];
+    const clampedX = Math.max(10, Math.min(canvas.width - player.w - 10, spot.x));
+    const clampedY = Math.max(0, spot.y);
+    if (isSafeSpawn(clampedX, clampedY)) {
+      return { x: clampedX, y: clampedY };
+    }
+  }
+  return { x: spawnPoint.x, y: spawnPoint.y };
+}
+
 function spawnEnemies(keepGhosts = true) {
   if (keepGhosts) {
     moveTrapsForNextWave();
@@ -250,8 +282,9 @@ function announce(text, duration) {
 function handlePlayerDeath(messageText) {
   lives -= 1;
   updateHud();
-  player.x = spawnPoint.x;
-  player.y = spawnPoint.y;
+  const safeSpot = findSafeSpawn();
+  player.x = safeSpot.x;
+  player.y = safeSpot.y;
   player.vx = 0;
   player.vy = 0;
   player.invuln = 45;
@@ -266,8 +299,9 @@ function reset() {
   waveCount = 3;
   waveNumber = 1;
   status = "playing";
-  player.x = spawnPoint.x;
-  player.y = spawnPoint.y;
+  const safeSpot = findSafeSpawn();
+  player.x = safeSpot.x;
+  player.y = safeSpot.y;
   player.vx = 0;
   player.vy = 0;
   player.invuln = 0;
