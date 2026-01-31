@@ -696,6 +696,14 @@ if (touchControls) {
       startThrowing();
       return;
     }
+    if (action === "fullscreen") {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      }
+      return;
+    }
     if (action === "restart") {
       reset();
       return;
