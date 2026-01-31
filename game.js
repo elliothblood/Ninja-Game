@@ -877,6 +877,9 @@ window.addEventListener("keydown", (e) => {
   if (e.key === " ") {
     throwStar(isAimUp() ? -1 : 0);
   }
+  if (e.key === "e" || e.key === "E") {
+    throwStar(-1);
+  }
   if (e.key.toLowerCase() === "r") {
     reset();
   }
