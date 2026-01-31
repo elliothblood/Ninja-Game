@@ -377,13 +377,23 @@ function updateEnemies() {
     } else if (e.type === "yellow") {
       const playerCenter = player.x + player.w / 2;
       const enemyCenter = e.x + e.w / 2;
-      let seekDir = Math.random() < 0.6 ? (playerCenter < enemyCenter ? -1 : 1) : e.dir;
-      const targetPlatform = platforms.find((p) => {
-        const isAboveEnemy = e.y + e.h < p.y + 6;
-        const isPlayerAbove = player.y + player.h < p.y - 6;
-        const overlapsX = enemyCenter > p.x && enemyCenter < p.x + p.w;
+      let seekDir = playerCenter < enemyCenter ? -1 : 1;
+      let targetPlatform = null;
+      let closestGap = Number.POSITIVE_INFINITY;
+      platforms.forEach((p) => {
+        const playerAbove = player.y + player.h < p.y - 6;
+        const enemyBelow = e.y > p.y + 6;
         const notGround = p.y < canvas.height - 60;
-        return isAboveEnemy && isPlayerAbove && overlapsX && notGround;
+        const minX = Math.min(playerCenter, enemyCenter);
+        const maxX = Math.max(playerCenter, enemyCenter);
+        const between = p.x < maxX && p.x + p.w > minX;
+        if (playerAbove && enemyBelow && notGround && between) {
+          const gap = e.y - p.y;
+          if (gap < closestGap) {
+            closestGap = gap;
+            targetPlatform = p;
+          }
+        }
       });
       if (targetPlatform) {
         const leftEdge = targetPlatform.x - 16;
