@@ -39,11 +39,11 @@ const platforms = [
   { x: 330, y: 360, w: 200, h: 16 },
   { x: 580, y: 300, w: 220, h: 16 },
   { x: 120, y: 260, w: 160, h: 16 },
-  { x: 350, y: 220, w: 160, h: 16 },
-  { x: 640, y: 180, w: 160, h: 16 },
+  { x: 350, y: 220, w: 160, h: 16, moveRange: 80, moveSpeed: 0.8 },
+  { x: 640, y: 180, w: 160, h: 16, moveRange: 70, moveSpeed: 0.7 },
   { x: 40, y: 330, w: 140, h: 14 },
   { x: 240, y: 300, w: 120, h: 14 },
-  { x: 520, y: 250, w: 140, h: 14 },
+  { x: 520, y: 250, w: 140, h: 14, moveRange: 60, moveSpeed: 0.9 },
   { x: 20, y: 210, w: 120, h: 14 },
   { x: 220, y: 170, w: 120, h: 14 },
   { x: 440, y: 140, w: 120, h: 14 },
@@ -73,6 +73,27 @@ let fireRateBoost = 0;
 let bonusLifeTimer = 0;
 
 const spawnPoint = { x: 120, y: canvas.height - 92 };
+const movingPlatforms = platforms.filter((p) => p.moveRange);
+movingPlatforms.forEach((p) => {
+  p.baseX = p.x;
+  p.dir = 1;
+  p.dx = 0;
+});
+
+function updatePlatforms() {
+  movingPlatforms.forEach((p) => {
+    const prevX = p.x;
+    p.x += p.dir * p.moveSpeed;
+    if (p.x > p.baseX + p.moveRange) {
+      p.x = p.baseX + p.moveRange;
+      p.dir = -1;
+    } else if (p.x < p.baseX - p.moveRange) {
+      p.x = p.baseX - p.moveRange;
+      p.dir = 1;
+    }
+    p.dx = p.x - prevX;
+  });
+}
 
 function spawnEnemies() {
   enemies = [];
@@ -172,6 +193,9 @@ function applyPhysics() {
       player.y = p.y - player.h;
       player.vy = 0;
       player.onGround = true;
+      if (p.dx) {
+        player.x += p.dx;
+      }
     }
   });
 
@@ -631,6 +655,7 @@ function update() {
   if (player.cooldown > 0) {
     player.cooldown -= 1;
   }
+  updatePlatforms();
   handleInput();
   applyPhysics();
   updateProjectiles();
