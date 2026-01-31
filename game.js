@@ -8,7 +8,7 @@ const waveEl = document.getElementById("wave");
 const keys = new Set();
 const virtualKeys = new Set();
 let score = 0;
-let lives = 3;
+let lives = 4;
 let message = "";
 let messageUntil = 0;
 let status = "playing";
@@ -173,7 +173,7 @@ function announce(text, duration) {
 
 function reset() {
   score = 0;
-  lives = 3;
+  lives = 4;
   waveCount = 3;
   waveNumber = 1;
   status = "playing";
@@ -287,8 +287,8 @@ function updateProjectiles() {
 function spawnPowerup() {
   const roll = Math.random();
   let type = "size";
-  if (roll < 0.34) type = "rate";
-  else if (roll < 0.67) type = "life";
+  if (roll < 0.25) type = "rate";
+  else if (roll < 0.75) type = "life";
   const viablePlatforms = platforms.filter((p) => p.y < canvas.height - 60);
   const platform = viablePlatforms[Math.floor(Math.random() * viablePlatforms.length)];
   const x = platform.x + 12 + Math.random() * (platform.w - 24);
@@ -771,7 +771,7 @@ function update() {
   if (enemies.length === 0) {
     waveCount += 1;
     waveNumber += 1;
-    lives = 3;
+    lives = 4;
     updateHud();
     spawnEnemies();
     announce("More ninjas incoming", 1200);
