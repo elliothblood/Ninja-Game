@@ -292,7 +292,14 @@ function handleInput() {
 }
 
 function isAimUp() {
-  return keys.has("ArrowUp") || keys.has("w") || keys.has("W") || touchAimUp;
+  return (
+    keys.has("ArrowUp") ||
+    keys.has("w") ||
+    keys.has("W") ||
+    keys.has("e") ||
+    keys.has("E") ||
+    touchAimUp
+  );
 }
 
 function throwStar(directionY = 0) {
