@@ -290,16 +290,19 @@ function handleInput() {
   }
 }
 
-function throwStar() {
+function throwStar(directionY = 0) {
   if (player.cooldown > 0) return;
   const sizeBoost = starSizeBoost > 0 ? 3 : 0;
   const speedBoost = fireRateBoost > 0 ? 1.5 : 0;
+  const baseSpeed = 6.5 + speedBoost;
+  const verticalSpeed = -0.5 + directionY * baseSpeed;
+  const horizontalSpeed = player.facing * baseSpeed * (directionY !== 0 ? 0.25 : 1);
   projectiles.push({
     x: player.x + player.w / 2 + player.facing * 10,
     y: player.y + player.h / 2,
     r: 6 + sizeBoost,
-    vx: player.facing * (6.5 + speedBoost),
-    vy: -0.5,
+    vx: horizontalSpeed,
+    vy: verticalSpeed,
     life: 90,
     rot: 0,
   });
@@ -860,7 +863,8 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
   }
   if (e.key === " ") {
-    throwStar();
+    const aimUp = keys.has("ArrowUp") || keys.has("w") || keys.has("W") || virtualKeys.has("ArrowUp");
+    throwStar(aimUp ? -1 : 0);
   }
   if (e.key.toLowerCase() === "r") {
     reset();
@@ -870,6 +874,12 @@ window.addEventListener("keydown", (e) => {
 
 window.addEventListener("keyup", (e) => {
   keys.delete(e.key);
+  if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+    if (throwInterval) {
+      stopThrowing();
+      startThrowing();
+    }
+  }
 });
 
 function stopThrowing() {
@@ -880,9 +890,11 @@ function stopThrowing() {
 }
 
 function startThrowing() {
-  throwStar();
+  const aimUp = keys.has("ArrowUp") || keys.has("w") || keys.has("W") || virtualKeys.has("ArrowUp");
+  const direction = aimUp ? -1 : 0;
+  throwStar(direction);
   if (!throwInterval) {
-    throwInterval = setInterval(throwStar, 120);
+    throwInterval = setInterval(() => throwStar(direction), 120);
   }
 }
 
