@@ -290,7 +290,33 @@ function updateEnemies() {
     }
 
     // Basic roam AI: walk, bounce off walls, and occasionally jump.
-    if (e.type === "green" || e.type === "boss") {
+    if (e.type === "green") {
+      const playerCenter = player.x + player.w / 2;
+      const enemyCenter = e.x + e.w / 2;
+      let seekDir = playerCenter < enemyCenter ? -1 : 1;
+      const targetPlatform = platforms.find((p) => {
+        const isAboveEnemy = e.y + e.h < p.y + 6;
+        const isPlayerAbove = player.y + player.h < p.y - 6;
+        const overlapsX = enemyCenter > p.x && enemyCenter < p.x + p.w;
+        const notGround = p.y < canvas.height - 60;
+        return isAboveEnemy && isPlayerAbove && overlapsX && notGround;
+      });
+      if (targetPlatform) {
+        const leftEdge = targetPlatform.x - 16;
+        const rightEdge = targetPlatform.x + targetPlatform.w + 16;
+        seekDir = playerCenter < enemyCenter ? -1 : 1;
+        const targetX = playerCenter < enemyCenter ? leftEdge : rightEdge;
+        if (Math.abs(enemyCenter - targetX) < 8) {
+          if (e.onGround && e.jumpCooldown <= 0) {
+            e.vy = -8.5;
+            e.jumpCooldown = 50;
+          }
+        } else {
+          seekDir = targetX < enemyCenter ? -1 : 1;
+        }
+      }
+      e.dir = seekDir;
+    } else if (e.type === "boss") {
       e.dir = player.x + player.w / 2 < e.x + e.w / 2 ? -1 : 1;
     }
     e.x += e.vx * e.dir;
