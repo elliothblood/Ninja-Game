@@ -71,6 +71,7 @@ let powerups = [];
 let starSizeBoost = 0;
 let fireRateBoost = 0;
 let bonusLifeTimer = 0;
+let ghostSpawnCooldown = 0;
 
 const spawnPoint = { x: 120, y: canvas.height - 92 };
 const movingPlatforms = platforms.filter((p) => p.moveRange);
@@ -138,6 +139,25 @@ function spawnEnemies() {
       });
     }
   }
+}
+
+function spawnGhost() {
+  const edge = Math.random() < 0.5 ? -40 : canvas.width + 40;
+  const y = 80 + Math.random() * (canvas.height - 200);
+  enemies.push({
+    x: edge,
+    y,
+    w: 28,
+    h: 36,
+    vx: 0,
+    vy: 0,
+    dir: edge < canvas.width / 2 ? 1 : -1,
+    onGround: false,
+    jumpCooldown: 0,
+    type: "ghost",
+    hp: 2,
+    drift: Math.random() * Math.PI * 2,
+  });
 }
 
 function updateHud() {
@@ -306,6 +326,20 @@ function applyPowerup(type) {
 
 function updateEnemies() {
   enemies.forEach((e) => {
+    if (e.type === "ghost") {
+      const targetX = player.x + player.w / 2;
+      const targetY = player.y + player.h / 2;
+      const dx = targetX - (e.x + e.w / 2);
+      const dy = targetY - (e.y + e.h / 2);
+      const dist = Math.hypot(dx, dy) || 1;
+      const speed = 0.7;
+      e.x += (dx / dist) * speed;
+      e.y += (dy / dist) * speed;
+      e.drift += 0.05;
+      e.y += Math.sin(e.drift) * 0.2;
+      return;
+    }
+
     if (e.jumpCooldown > 0) {
       e.jumpCooldown -= 1;
     }
@@ -436,6 +470,7 @@ function checkHits() {
         if (e.hp <= 0) {
           enemies.splice(j, 1);
           if (e.type === "boss") score += 600;
+          else if (e.type === "ghost") score += 180;
           else score += e.type === "blue" ? 200 : 120;
         }
         updateHud();
@@ -588,6 +623,23 @@ function drawPlayer() {
 
 function drawEnemies() {
   enemies.forEach((e) => {
+    if (e.type === "ghost") {
+      ctx.save();
+      ctx.translate(e.x + e.w / 2, e.y + e.h / 2);
+      ctx.strokeStyle = "rgba(165, 240, 255, 0.85)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(0, -4, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 6);
+      ctx.lineTo(-8, 16);
+      ctx.moveTo(0, 6);
+      ctx.lineTo(8, 16);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
     const stride = Math.sin((frameTick + e.x) * 0.2) * (e.type === "boss" ? 7 : 5);
     const armSwing = Math.cos((frameTick + e.x) * 0.2) * (e.type === "boss" ? 7 : 5);
     ctx.save();
@@ -679,6 +731,16 @@ function update() {
   if (player.invuln > 0) player.invuln -= 1;
   if (player.cooldown > 0) {
     player.cooldown -= 1;
+  }
+  if (ghostSpawnCooldown > 0) {
+    ghostSpawnCooldown -= 1;
+  } else if (Math.random() < 0.003) {
+    const ghostCount = enemies.filter((e) => e.type === "ghost").length;
+    if (ghostCount < 2) {
+      spawnGhost();
+      ghostSpawnCooldown = 420;
+      announce("A ghost appears!", 900);
+    }
   }
   updatePlatforms();
   handleInput();
