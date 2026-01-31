@@ -451,6 +451,17 @@ function updateEnemies() {
       const playerCenter = player.x + player.w / 2;
       const enemyCenter = e.x + e.w / 2;
       let seekDir = playerCenter < enemyCenter ? -1 : 1;
+      const trapAhead = traps.some((t) => {
+        const sameLevel = Math.abs(e.y + e.h - t.y) < 8;
+        const inFront =
+          (seekDir === 1 && t.x > enemyCenter && t.x < enemyCenter + 90) ||
+          (seekDir === -1 && t.x + t.w < enemyCenter && t.x + t.w > enemyCenter - 90);
+        return sameLevel && inFront;
+      });
+      if (trapAhead && e.onGround && e.jumpCooldown <= 0) {
+        e.vy = -9.5;
+        e.jumpCooldown = 30;
+      }
       const standingPlatform = platforms.find(
         (p) => e.x + e.w > p.x && e.x < p.x + p.w && Math.abs(e.y + e.h - p.y) < 6
       );
