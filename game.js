@@ -97,6 +97,9 @@ function updatePlatforms() {
 }
 
 function spawnEnemies(keepGhosts = true) {
+  if (keepGhosts) {
+    moveTrapsForNextWave();
+  }
   enemies = keepGhosts ? enemies.filter((e) => e.type === "ghost") : [];
   if (waveNumber % 3 === 0) {
     enemies.push({
@@ -798,7 +801,6 @@ function update() {
     waveCount += 1;
     waveNumber += 1;
     lives = 4;
-    moveTrapsForNextWave();
     updateHud();
     spawnEnemies(true);
     announce("More ninjas incoming", 1200);
