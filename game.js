@@ -15,6 +15,7 @@ let messageUntil = 0;
 let status = "playing";
 let frameTick = 0;
 let throwInterval = null;
+let touchAimUp = false;
 
 const player = {
   x: 120,
@@ -288,6 +289,10 @@ function handleInput() {
     player.vy = -player.jump;
     player.onGround = false;
   }
+}
+
+function isAimUp() {
+  return keys.has("ArrowUp") || keys.has("w") || keys.has("W") || touchAimUp;
 }
 
 function throwStar(directionY = 0) {
@@ -863,8 +868,7 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
   }
   if (e.key === " ") {
-    const aimUp = keys.has("ArrowUp") || keys.has("w") || keys.has("W") || virtualKeys.has("ArrowUp");
-    throwStar(aimUp ? -1 : 0);
+    throwStar(isAimUp() ? -1 : 0);
   }
   if (e.key.toLowerCase() === "r") {
     reset();
@@ -890,8 +894,7 @@ function stopThrowing() {
 }
 
 function startThrowing() {
-  const aimUp = keys.has("ArrowUp") || keys.has("w") || keys.has("W") || virtualKeys.has("ArrowUp");
-  const direction = aimUp ? -1 : 0;
+  const direction = isAimUp() ? -1 : 0;
   throwStar(direction);
   if (!throwInterval) {
     throwInterval = setInterval(() => throwStar(direction), 120);
@@ -912,7 +915,7 @@ if (touchControls) {
       return;
     }
     if (action === "throw-up") {
-      virtualKeys.add("ArrowUp");
+      touchAimUp = true;
       startThrowing();
       return;
     }
@@ -939,7 +942,7 @@ if (touchControls) {
     }
     if (action === "throw-up") {
       stopThrowing();
-      virtualKeys.delete("ArrowUp");
+      touchAimUp = false;
       return;
     }
     const key = actionMap[action];
@@ -964,6 +967,7 @@ if (touchControls) {
 window.addEventListener("blur", () => {
   virtualKeys.clear();
   stopThrowing();
+  touchAimUp = false;
 });
 
 spawnEnemies(false);
