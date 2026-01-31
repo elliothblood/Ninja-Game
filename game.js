@@ -9,6 +9,7 @@ const keys = new Set();
 const virtualKeys = new Set();
 let score = 0;
 let lives = 4;
+const maxLives = 6;
 let message = "";
 let messageUntil = 0;
 let status = "playing";
@@ -35,6 +36,7 @@ const friction = 0.8;
 
 const platforms = [
   { x: 0, y: canvas.height - 40, w: canvas.width, h: 40 },
+  { x: canvas.width - 170, y: canvas.height - 120, w: 150, h: 14 },
   { x: 80, y: 420, w: 200, h: 16 },
   { x: 330, y: 360, w: 200, h: 16 },
   { x: 580, y: 300, w: 220, h: 16 },
@@ -72,6 +74,8 @@ let starSizeBoost = 0;
 let fireRateBoost = 0;
 let bonusLifeTimer = 0;
 let ghostSpawnCooldown = 0;
+let regenTimer = 600;
+let regenBoostTimer = 0;
 
 const spawnPoint = { x: 120, y: canvas.height - 92 };
 const movingPlatforms = platforms.filter((p) => p.moveRange);
@@ -213,6 +217,8 @@ function reset() {
   starSizeBoost = 0;
   fireRateBoost = 0;
   bonusLifeTimer = 0;
+  regenTimer = 600;
+  regenBoostTimer = 0;
   spawnEnemies(false);
   updateHud();
   announce("Explore the dungeon", 1200);
@@ -313,8 +319,9 @@ function updateProjectiles() {
 function spawnPowerup() {
   const roll = Math.random();
   let type = "size";
-  if (roll < 0.25) type = "rate";
-  else if (roll < 0.75) type = "life";
+  if (roll < 0.2) type = "rate";
+  else if (roll < 0.6) type = "life";
+  else if (roll < 0.75) type = "regen";
   const viablePlatforms = platforms.filter((p) => p.y < canvas.height - 60);
   const platform = viablePlatforms[Math.floor(Math.random() * viablePlatforms.length)];
   const x = platform.x + 12 + Math.random() * (platform.w - 24);
@@ -342,8 +349,11 @@ function applyPowerup(type) {
   } else if (type === "rate") {
     fireRateBoost = 480;
     announce("Faster throws!", 1000);
+  } else if (type === "regen") {
+    regenBoostTimer = 900;
+    announce("Rapid healing!", 1000);
   } else if (type === "life") {
-    lives = Math.min(5, lives + 1);
+    lives = Math.min(maxLives, lives + 1);
     bonusLifeTimer = 300;
     updateHud();
     announce("Extra life!", 1000);
@@ -737,6 +747,7 @@ function drawPowerups() {
     ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
     if (p.type === "size") ctx.fillStyle = "#6ddccf";
     else if (p.type === "rate") ctx.fillStyle = "#f4a261";
+    else if (p.type === "regen") ctx.fillStyle = "#a78bfa";
     else ctx.fillStyle = "#a3e635";
     ctx.beginPath();
     ctx.arc(0, 0, 10, 0, Math.PI * 2);
@@ -744,7 +755,11 @@ function drawPowerups() {
     ctx.fillStyle = "#1b1b1b";
     ctx.font = "bold 12px Courier New";
     ctx.textAlign = "center";
-    ctx.fillText(p.type === "size" ? "+" : p.type === "rate" ? ">>" : "♥", 0, 4);
+    ctx.fillText(
+      p.type === "size" ? "+" : p.type === "rate" ? ">>" : p.type === "regen" ? "++" : "♥",
+      0,
+      4
+    );
     ctx.restore();
   });
 }
@@ -794,6 +809,17 @@ function update() {
   if (starSizeBoost > 0) starSizeBoost -= 1;
   if (fireRateBoost > 0) fireRateBoost -= 1;
   if (bonusLifeTimer > 0) bonusLifeTimer -= 1;
+  if (regenBoostTimer > 0) regenBoostTimer -= 1;
+
+  if (regenTimer > 0) {
+    regenTimer -= 1;
+  } else {
+    if (lives < maxLives) {
+      lives += 1;
+      updateHud();
+    }
+    regenTimer = regenBoostTimer > 0 ? 240 : 600;
+  }
 
   const remainingFighters = enemies.filter((e) => isWaveEnemy(e)).length;
   if (remainingFighters === 0) {
