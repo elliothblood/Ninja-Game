@@ -441,6 +441,16 @@ function updateEnemies() {
       const playerCenter = player.x + player.w / 2;
       const enemyCenter = e.x + e.w / 2;
       let seekDir = playerCenter < enemyCenter ? -1 : 1;
+      const standingPlatform = platforms.find(
+        (p) => e.x + e.w > p.x && e.x < p.x + p.w && Math.abs(e.y + e.h - p.y) < 6
+      );
+      const playerBelow = player.y > e.y + e.h + 20;
+      if (standingPlatform && playerBelow) {
+        const leftEdge = standingPlatform.x - 6;
+        const rightEdge = standingPlatform.x + standingPlatform.w + 6;
+        const targetX = enemyCenter < playerCenter ? rightEdge : leftEdge;
+        seekDir = targetX < enemyCenter ? -1 : 1;
+      }
       const targetPlatform = platforms.find((p) => {
         const isAboveEnemy = e.y + e.h < p.y + 6;
         const isPlayerAbove = player.y + player.h < p.y - 6;
@@ -455,12 +465,15 @@ function updateEnemies() {
         const targetX = playerCenter < enemyCenter ? leftEdge : rightEdge;
         if (Math.abs(enemyCenter - targetX) < 8) {
           if (e.onGround && e.jumpCooldown <= 0) {
-            e.vy = -8.5;
-            e.jumpCooldown = 50;
+            e.vy = -9.2;
+            e.jumpCooldown = 35;
           }
         } else {
           seekDir = targetX < enemyCenter ? -1 : 1;
         }
+      } else if (e.onGround && !playerBelow && Math.random() < 0.015 && e.jumpCooldown <= 0) {
+        e.vy = -8.8;
+        e.jumpCooldown = 45;
       }
       e.dir = seekDir;
     } else if (e.type === "yellow") {
