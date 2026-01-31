@@ -127,9 +127,10 @@ function spawnEnemies(keepGhosts = true) {
       const x = baseXs[i % baseXs.length] + (Math.random() * 80 - 40);
       const roll = Math.random();
       let type = "yellow";
-      if (roll < 0.18) type = "blue";
-      else if (roll < 0.32) type = "red";
-      else if (roll < 0.48) type = "green";
+      if (roll < 0.16) type = "blue";
+      else if (roll < 0.28) type = "red";
+      else if (roll < 0.42) type = "green";
+      else if (roll < 0.52) type = "pink";
       const hp = type === "blue" ? 2 : 1;
       enemies.push({
         x: Math.max(40, Math.min(canvas.width - 60, x)),
@@ -532,7 +533,14 @@ function checkHits() {
           enemies.splice(j, 1);
           if (e.type === "boss") score += 600;
           else if (e.type === "ghost") score += 180;
-          else score += e.type === "blue" ? 200 : 120;
+          else if (e.type === "blue") score += 200;
+          else if (e.type === "pink") score += 140;
+          else score += 120;
+          if (e.type === "pink") {
+            lives = Math.min(maxLives, lives + 1);
+            updateHud();
+            announce("Healing burst!", 900);
+          }
         }
         updateHud();
         return;
@@ -708,6 +716,7 @@ function drawEnemies() {
     if (e.type === "blue") ctx.strokeStyle = "#63b7ff";
     else if (e.type === "red") ctx.strokeStyle = "#ff6b6b";
     else if (e.type === "green") ctx.strokeStyle = "#74d680";
+    else if (e.type === "pink") ctx.strokeStyle = "#f472b6";
     else if (e.type === "boss") ctx.strokeStyle = "#f97316";
     else ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = e.type === "boss" ? 4 : 3;
