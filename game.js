@@ -72,6 +72,7 @@ let starSizeBoost = 0;
 let fireRateBoost = 0;
 let bonusLifeTimer = 0;
 let ghostSpawnCooldown = 0;
+const waveEnemyTypes = new Set(["yellow", "blue", "red", "green", "boss"]);
 
 const spawnPoint = { x: 120, y: canvas.height - 92 };
 const movingPlatforms = platforms.filter((p) => p.moveRange);
@@ -139,6 +140,10 @@ function spawnEnemies() {
       });
     }
   }
+}
+
+function isWaveEnemy(enemy) {
+  return waveEnemyTypes.has(enemy.type);
 }
 
 function spawnGhost() {
@@ -746,7 +751,7 @@ function update() {
     ghostSpawnCooldown -= 1;
   } else if (Math.random() < 0.012) {
     const ghostCount = enemies.filter((e) => e.type === "ghost").length;
-    const hasFighters = enemies.some((e) => e.type !== "ghost");
+    const hasFighters = enemies.some((e) => isWaveEnemy(e));
     if (ghostCount < 4 && hasFighters) {
       spawnGhost();
       ghostSpawnCooldown = 220;
@@ -769,7 +774,7 @@ function update() {
   if (fireRateBoost > 0) fireRateBoost -= 1;
   if (bonusLifeTimer > 0) bonusLifeTimer -= 1;
 
-  const remainingFighters = enemies.filter((e) => e.type !== "ghost").length;
+  const remainingFighters = enemies.filter((e) => isWaveEnemy(e)).length;
   if (remainingFighters === 0) {
     enemies = enemies.filter((e) => e.type !== "ghost");
     ghostSpawnCooldown = 240;
