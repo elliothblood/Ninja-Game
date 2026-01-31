@@ -72,7 +72,6 @@ let starSizeBoost = 0;
 let fireRateBoost = 0;
 let bonusLifeTimer = 0;
 let ghostSpawnCooldown = 0;
-const waveEnemyTypes = new Set(["yellow", "blue", "red", "green", "boss"]);
 
 const spawnPoint = { x: 120, y: canvas.height - 92 };
 const movingPlatforms = platforms.filter((p) => p.moveRange);
@@ -97,8 +96,8 @@ function updatePlatforms() {
   });
 }
 
-function spawnEnemies() {
-  enemies = [];
+function spawnEnemies(keepGhosts = true) {
+  enemies = keepGhosts ? enemies.filter((e) => e.type === "ghost") : [];
   if (waveNumber % 3 === 0) {
     enemies.push({
       x: canvas.width / 2 - 24,
@@ -141,9 +140,8 @@ function spawnEnemies() {
     }
   }
 }
-
 function isWaveEnemy(enemy) {
-  return waveEnemyTypes.has(enemy.type);
+  return enemy && enemy.type !== "ghost";
 }
 
 function spawnGhost() {
@@ -192,7 +190,7 @@ function reset() {
   starSizeBoost = 0;
   fireRateBoost = 0;
   bonusLifeTimer = 0;
-  spawnEnemies();
+  spawnEnemies(false);
   updateHud();
   announce("Explore the dungeon", 1200);
 }
@@ -776,13 +774,12 @@ function update() {
 
   const remainingFighters = enemies.filter((e) => isWaveEnemy(e)).length;
   if (remainingFighters === 0) {
-    enemies = enemies.filter((e) => e.type !== "ghost");
     ghostSpawnCooldown = 240;
     waveCount += 1;
     waveNumber += 1;
     lives = 4;
     updateHud();
-    spawnEnemies();
+    spawnEnemies(true);
     announce("More ninjas incoming", 1200);
   }
 
@@ -898,7 +895,7 @@ window.addEventListener("blur", () => {
   stopThrowing();
 });
 
-spawnEnemies();
+spawnEnemies(false);
 updateHud();
 announce("Explore the dungeon", 1200);
 requestAnimationFrame(loop);
