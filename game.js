@@ -86,6 +86,11 @@ movingPlatforms.forEach((p) => {
   p.dx = 0;
 });
 
+const staticPlatforms = platforms.filter((p) => !p.moveRange && p.y < canvas.height - 50);
+staticPlatforms.forEach((p) => {
+  p.baseX = p.x;
+});
+
 function updatePlatforms() {
   movingPlatforms.forEach((p) => {
     const prevX = p.x;
@@ -111,10 +116,25 @@ function repositionMovingPlatforms() {
   });
 }
 
+function repositionAllPlatforms() {
+  movingPlatforms.forEach((p) => {
+    const shift = (Math.random() * 2 - 1) * p.moveRange;
+    p.baseX = Math.max(20, Math.min(canvas.width - p.w - 20, p.baseX + shift));
+    p.x = p.baseX;
+    p.dir = Math.random() < 0.5 ? -1 : 1;
+    p.dx = 0;
+  });
+
+  staticPlatforms.forEach((p) => {
+    const shift = (Math.random() * 2 - 1) * 70;
+    p.x = Math.max(20, Math.min(canvas.width - p.w - 20, p.x + shift));
+  });
+}
+
 function spawnEnemies(keepGhosts = true) {
   if (keepGhosts) {
     moveTrapsForNextWave();
-    repositionMovingPlatforms();
+    repositionAllPlatforms();
   }
   enemies = keepGhosts ? enemies.filter((e) => e.type === "ghost") : [];
   if (waveNumber % 3 === 0) {
