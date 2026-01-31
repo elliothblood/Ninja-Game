@@ -234,6 +234,19 @@ function announce(text, duration) {
   messageUntil = performance.now() + duration;
 }
 
+function handlePlayerDeath(messageText) {
+  lives -= 1;
+  updateHud();
+  player.x = spawnPoint.x;
+  player.y = spawnPoint.y;
+  player.vx = 0;
+  player.vy = 0;
+  player.invuln = 45;
+  moveTrapsForNextWave();
+  repositionAllPlatforms();
+  announce(messageText, 1200);
+}
+
 function reset() {
   score = 0;
   lives = 4;
@@ -290,14 +303,7 @@ function applyPhysics() {
 
   player.x = Math.max(10, Math.min(canvas.width - player.w - 10, player.x));
   if (player.y > canvas.height + 200) {
-    lives -= 1;
-    updateHud();
-    player.x = spawnPoint.x;
-    player.y = spawnPoint.y;
-    player.vx = 0;
-    player.vy = 0;
-    player.invuln = 45;
-    announce("Watch your step!", 1200);
+    handlePlayerDeath("Watch your step!");
   }
 }
 
@@ -597,14 +603,7 @@ function checkHits() {
 
   enemies.forEach((e) => {
     if (rectsOverlap(player, e)) {
-      lives -= 1;
-      updateHud();
-      player.x = spawnPoint.x;
-      player.y = spawnPoint.y;
-      player.vx = 0;
-      player.vy = 0;
-      player.invuln = 45;
-      announce("Ambushed!", 1200);
+      handlePlayerDeath("Ambushed!");
     }
   });
 
@@ -613,10 +612,7 @@ function checkHits() {
     if (!p.hostile) continue;
     if (rectsOverlap({ x: p.x - p.r, y: p.y - p.r, w: p.r * 2, h: p.r * 2 }, player)) {
       projectiles.splice(i, 1);
-      lives -= 1;
-      updateHud();
-      player.invuln = 45;
-      announce("Hit by shuriken!", 1200);
+      handlePlayerDeath("Hit by shuriken!");
     }
   }
 
@@ -632,14 +628,7 @@ function checkHits() {
     for (let i = 0; i < traps.length; i += 1) {
       const t = traps[i];
       if (rectsOverlap(player, t)) {
-        lives -= 1;
-        updateHud();
-        player.x = spawnPoint.x;
-        player.y = spawnPoint.y;
-        player.vx = 0;
-        player.vy = 0;
-        player.invuln = 45;
-        announce("Trap sprung!", 1200);
+        handlePlayerDeath("Trap sprung!");
         break;
       }
     }
