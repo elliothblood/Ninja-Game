@@ -172,11 +172,20 @@ function updateHud() {
 function moveTrapsForNextWave() {
   traps.forEach((t) => {
     const candidates = platforms.filter((p) => p.y < canvas.height - 40);
-    const platform = candidates[Math.floor(Math.random() * candidates.length)];
-    const minX = platform.x + 8;
-    const maxX = platform.x + platform.w - t.w - 8;
-    t.x = Math.max(12, Math.min(canvas.width - t.w - 12, minX + Math.random() * (maxX - minX)));
-    t.y = platform.y - t.h + 2;
+    let attempts = 0;
+    let nextX = t.x;
+    let nextY = t.y;
+    while (attempts < 6) {
+      const platform = candidates[Math.floor(Math.random() * candidates.length)];
+      const minX = platform.x + 8;
+      const maxX = platform.x + platform.w - t.w - 8;
+      nextX = Math.max(12, Math.min(canvas.width - t.w - 12, minX + Math.random() * (maxX - minX)));
+      nextY = platform.y - t.h + 2;
+      if (Math.abs(nextX - t.x) > 30 || Math.abs(nextY - t.y) > 6) break;
+      attempts += 1;
+    }
+    t.x = nextX;
+    t.y = nextY;
   });
 }
 
