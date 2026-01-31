@@ -101,9 +101,20 @@ function updatePlatforms() {
   });
 }
 
+function repositionMovingPlatforms() {
+  movingPlatforms.forEach((p) => {
+    const shift = (Math.random() * 2 - 1) * p.moveRange;
+    p.baseX = Math.max(20, Math.min(canvas.width - p.w - 20, p.baseX + shift));
+    p.x = p.baseX;
+    p.dir = Math.random() < 0.5 ? -1 : 1;
+    p.dx = 0;
+  });
+}
+
 function spawnEnemies(keepGhosts = true) {
   if (keepGhosts) {
     moveTrapsForNextWave();
+    repositionMovingPlatforms();
   }
   enemies = keepGhosts ? enemies.filter((e) => e.type === "ghost") : [];
   if (waveNumber % 3 === 0) {
