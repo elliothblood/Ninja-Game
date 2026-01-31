@@ -845,7 +845,7 @@ function drawEnemies() {
     else if (e.type === "red") ctx.strokeStyle = "#ff6b6b";
     else if (e.type === "green") ctx.strokeStyle = "#74d680";
     else if (e.type === "pink") ctx.strokeStyle = "#f472b6";
-    else if (e.type === "purple") ctx.strokeStyle = "#a21caf";
+    else if (e.type === "purple") ctx.strokeStyle = "#be123c";
     else if (e.type === "boss") ctx.strokeStyle = "#f97316";
     else ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = e.type === "boss" ? 4 : 3;
