@@ -221,7 +221,17 @@ function moveTrapsForNextWave() {
       const maxX = platform.x + platform.w - t.w - 8;
       nextX = Math.max(12, Math.min(canvas.width - t.w - 12, minX + Math.random() * (maxX - minX)));
       nextY = platform.y - t.h + 2;
-      if (Math.abs(nextX - t.x) > 30 || Math.abs(nextY - t.y) > 6) break;
+      const movedEnough = Math.abs(nextX - t.x) > 30 || Math.abs(nextY - t.y) > 6;
+      let overlaps = false;
+      for (let i = 0; i < traps.length; i += 1) {
+        const other = traps[i];
+        if (other === t) continue;
+        if (rectsOverlap({ x: nextX, y: nextY, w: t.w, h: t.h }, other)) {
+          overlaps = true;
+          break;
+        }
+      }
+      if (movedEnough && !overlaps) break;
       attempts += 1;
     }
     t.x = nextX;
