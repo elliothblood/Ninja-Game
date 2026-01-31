@@ -744,11 +744,11 @@ function update() {
   }
   if (ghostSpawnCooldown > 0) {
     ghostSpawnCooldown -= 1;
-  } else if (Math.random() < 0.007) {
+  } else if (Math.random() < 0.012) {
     const ghostCount = enemies.filter((e) => e.type === "ghost").length;
-    if (ghostCount < 3) {
+    if (ghostCount < 4) {
       spawnGhost();
-      ghostSpawnCooldown = 300;
+      ghostSpawnCooldown = 220;
       announce("A ghost appears!", 900);
     }
   }
