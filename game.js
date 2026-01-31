@@ -746,7 +746,8 @@ function update() {
     ghostSpawnCooldown -= 1;
   } else if (Math.random() < 0.012) {
     const ghostCount = enemies.filter((e) => e.type === "ghost").length;
-    if (ghostCount < 4) {
+    const hasFighters = enemies.some((e) => e.type !== "ghost");
+    if (ghostCount < 4 && hasFighters) {
       spawnGhost();
       ghostSpawnCooldown = 220;
       announce("A ghost appears!", 900);
@@ -770,6 +771,8 @@ function update() {
 
   const remainingFighters = enemies.filter((e) => e.type !== "ghost").length;
   if (remainingFighters === 0) {
+    enemies = enemies.filter((e) => e.type !== "ghost");
+    ghostSpawnCooldown = 240;
     waveCount += 1;
     waveNumber += 1;
     lives = 4;
