@@ -340,6 +340,31 @@ function updateEnemies() {
         }
       }
       e.dir = seekDir;
+    } else if (e.type === "yellow") {
+      const playerCenter = player.x + player.w / 2;
+      const enemyCenter = e.x + e.w / 2;
+      let seekDir = Math.random() < 0.6 ? (playerCenter < enemyCenter ? -1 : 1) : e.dir;
+      const targetPlatform = platforms.find((p) => {
+        const isAboveEnemy = e.y + e.h < p.y + 6;
+        const isPlayerAbove = player.y + player.h < p.y - 6;
+        const overlapsX = enemyCenter > p.x && enemyCenter < p.x + p.w;
+        const notGround = p.y < canvas.height - 60;
+        return isAboveEnemy && isPlayerAbove && overlapsX && notGround;
+      });
+      if (targetPlatform) {
+        const leftEdge = targetPlatform.x - 16;
+        const rightEdge = targetPlatform.x + targetPlatform.w + 16;
+        const targetX = playerCenter < enemyCenter ? leftEdge : rightEdge;
+        if (Math.abs(enemyCenter - targetX) < 10) {
+          if (e.onGround && e.jumpCooldown <= 0 && Math.random() < 0.5) {
+            e.vy = -7.5;
+            e.jumpCooldown = 70;
+          }
+        } else {
+          seekDir = targetX < enemyCenter ? -1 : 1;
+        }
+      }
+      e.dir = seekDir;
     } else if (e.type === "boss") {
       e.dir = player.x + player.w / 2 < e.x + e.w / 2 ? -1 : 1;
     }
