@@ -837,8 +837,8 @@ function drawOverlay() {
 }
 
 function update() {
-  frameTick += 1;
   if (status !== "playing") return;
+  frameTick += 1;
   if (player.invuln > 0) player.invuln -= 1;
   if (player.cooldown > 0) {
     player.cooldown -= 1;
