@@ -200,8 +200,8 @@ function spawnEnemies(keepGhosts = true) {
       enemies.push({
         x: Math.max(40, Math.min(canvas.width - 60, x)),
         y: 0,
-        w: isPurple ? 6 : 26,
-        h: isPurple ? 9 : 40,
+        w: isPurple ? 13 : 26,
+        h: isPurple ? 20 : 40,
         vx: isPurple ? 2.8 + Math.random() * 1.2 : 1.1 + Math.random() * 0.8,
         vy: 0,
         dir: Math.random() < 0.5 ? -1 : 1,
