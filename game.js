@@ -168,9 +168,9 @@ function spawnEnemies(keepGhosts = true) {
       enemies.push({
         x: Math.max(40, Math.min(canvas.width - 60, x)),
         y: 0,
-        w: isPurple ? 22 : 26,
-        h: isPurple ? 32 : 40,
-        vx: isPurple ? 2.0 + Math.random() * 0.9 : 1.1 + Math.random() * 0.8,
+        w: isPurple ? 18 : 26,
+        h: isPurple ? 26 : 40,
+        vx: isPurple ? 2.5 + Math.random() * 1.1 : 1.1 + Math.random() * 0.8,
         vy: 0,
         dir: Math.random() < 0.5 ? -1 : 1,
         onGround: false,
@@ -543,11 +543,12 @@ function updateEnemies() {
         if (p.hostile) return false;
         const dx = p.x - (e.x + e.w / 2);
         const dy = p.y - (e.y + e.h / 2);
-        return Math.abs(dx) < 120 && Math.abs(dy) < 30;
+        return (dy > -180 && dy < 50 && Math.abs(dx) < 120) || (dy < -20 && Math.abs(dx) < 50);
       });
       if (threat && e.dodgeCooldown <= 0) {
+        const isAboveShot = threat.y < e.y - 10;
         e.dir = threat.x < e.x ? 1 : -1;
-        if (e.onGround) {
+        if (e.onGround && !isAboveShot) {
           e.vy = -9.5;
         }
         e.dodgeCooldown = 35;
@@ -810,7 +811,7 @@ function drawEnemies() {
     else if (e.type === "red") ctx.strokeStyle = "#ff6b6b";
     else if (e.type === "green") ctx.strokeStyle = "#74d680";
     else if (e.type === "pink") ctx.strokeStyle = "#f472b6";
-    else if (e.type === "purple") ctx.strokeStyle = "#c084fc";
+    else if (e.type === "purple") ctx.strokeStyle = "#7c3aed";
     else if (e.type === "boss") ctx.strokeStyle = "#f97316";
     else ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = e.type === "boss" ? 4 : 3;
