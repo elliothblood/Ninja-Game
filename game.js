@@ -169,6 +169,17 @@ function updateHud() {
   waveEl.textContent = `Wave: ${waveNumber}`;
 }
 
+function moveTrapsForNextWave() {
+  traps.forEach((t) => {
+    const candidates = platforms.filter((p) => p.y < canvas.height - 40);
+    const platform = candidates[Math.floor(Math.random() * candidates.length)];
+    const minX = platform.x + 8;
+    const maxX = platform.x + platform.w - t.w - 8;
+    t.x = Math.max(12, Math.min(canvas.width - t.w - 12, minX + Math.random() * (maxX - minX)));
+    t.y = platform.y - t.h + 2;
+  });
+}
+
 function announce(text, duration) {
   message = text;
   messageUntil = performance.now() + duration;
@@ -778,6 +789,7 @@ function update() {
     waveCount += 1;
     waveNumber += 1;
     lives = 4;
+    moveTrapsForNextWave();
     updateHud();
     spawnEnemies(true);
     announce("More ninjas incoming", 1200);
