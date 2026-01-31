@@ -882,7 +882,7 @@ function update() {
   } else if (Math.random() < 0.012) {
     const ghostCount = enemies.filter((e) => e.type === "ghost").length;
     const hasFighters = enemies.some((e) => isWaveEnemy(e));
-    if (ghostCount < 6 && hasFighters) {
+    if (ghostCount < 10 && hasFighters) {
       spawnGhost();
       ghostSpawnCooldown = 220;
       announce("A ghost appears!", 900);
