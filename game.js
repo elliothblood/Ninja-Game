@@ -768,7 +768,8 @@ function update() {
   if (fireRateBoost > 0) fireRateBoost -= 1;
   if (bonusLifeTimer > 0) bonusLifeTimer -= 1;
 
-  if (enemies.length === 0) {
+  const remainingFighters = enemies.filter((e) => e.type !== "ghost").length;
+  if (remainingFighters === 0) {
     waveCount += 1;
     waveNumber += 1;
     lives = 4;
