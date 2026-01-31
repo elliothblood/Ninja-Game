@@ -82,7 +82,7 @@ function spawnEnemies() {
       y: 0,
       w: 48,
       h: 68,
-      vx: 1.0,
+      vx: 0.7,
       vy: 0,
       dir: 1,
       onGround: false,
