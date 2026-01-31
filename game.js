@@ -6,12 +6,14 @@ const livesEl = document.getElementById("lives");
 const waveEl = document.getElementById("wave");
 
 const keys = new Set();
+const virtualKeys = new Set();
 let score = 0;
 let lives = 3;
 let message = "";
 let messageUntil = 0;
 let status = "playing";
 let frameTick = 0;
+let throwInterval = null;
 
 const player = {
   x: 120,
@@ -192,17 +194,21 @@ function applyPhysics() {
 
 function handleInput() {
   player.isMoving = false;
-  if (keys.has("ArrowLeft") || keys.has("a") || keys.has("A")) {
+  const leftPressed = keys.has("ArrowLeft") || keys.has("a") || keys.has("A") || virtualKeys.has("ArrowLeft");
+  const rightPressed = keys.has("ArrowRight") || keys.has("d") || keys.has("D") || virtualKeys.has("ArrowRight");
+  const jumpPressed = keys.has("ArrowUp") || keys.has("w") || keys.has("W") || virtualKeys.has("ArrowUp");
+
+  if (leftPressed) {
     player.vx = -player.speed;
     player.facing = -1;
     player.isMoving = true;
   }
-  if (keys.has("ArrowRight") || keys.has("d") || keys.has("D")) {
+  if (rightPressed) {
     player.vx = player.speed;
     player.facing = 1;
     player.isMoving = true;
   }
-  if ((keys.has("ArrowUp") || keys.has("w") || keys.has("W")) && player.onGround) {
+  if (jumpPressed && player.onGround) {
     player.vy = -player.jump;
     player.onGround = false;
   }
@@ -661,6 +667,70 @@ window.addEventListener("keydown", (e) => {
 
 window.addEventListener("keyup", (e) => {
   keys.delete(e.key);
+});
+
+function stopThrowing() {
+  if (throwInterval) {
+    clearInterval(throwInterval);
+    throwInterval = null;
+  }
+}
+
+function startThrowing() {
+  throwStar();
+  if (!throwInterval) {
+    throwInterval = setInterval(throwStar, 120);
+  }
+}
+
+const touchControls = document.querySelector(".touch-controls");
+if (touchControls) {
+  const actionMap = {
+    left: "ArrowLeft",
+    right: "ArrowRight",
+    jump: "ArrowUp",
+  };
+
+  const handlePress = (action) => {
+    if (action === "throw") {
+      startThrowing();
+      return;
+    }
+    if (action === "restart") {
+      reset();
+      return;
+    }
+    const key = actionMap[action];
+    if (key) virtualKeys.add(key);
+  };
+
+  const handleRelease = (action) => {
+    if (action === "throw") {
+      stopThrowing();
+      return;
+    }
+    const key = actionMap[action];
+    if (key) virtualKeys.delete(key);
+  };
+
+  touchControls.querySelectorAll("[data-action]").forEach((button) => {
+    const action = button.getAttribute("data-action");
+    button.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      handlePress(action);
+    });
+    button.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+      handleRelease(action);
+    });
+    button.addEventListener("pointerleave", () => handleRelease(action));
+    button.addEventListener("pointercancel", () => handleRelease(action));
+  });
+}
+
+window.addEventListener("blur", () => {
+  virtualKeys.clear();
+  stopThrowing();
 });
 
 spawnEnemies();
