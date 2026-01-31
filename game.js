@@ -911,6 +911,11 @@ if (touchControls) {
       startThrowing();
       return;
     }
+    if (action === "throw-up") {
+      virtualKeys.add("ArrowUp");
+      startThrowing();
+      return;
+    }
     if (action === "fullscreen") {
       if (document.fullscreenElement) {
         document.exitFullscreen();
@@ -930,6 +935,11 @@ if (touchControls) {
   const handleRelease = (action) => {
     if (action === "throw") {
       stopThrowing();
+      return;
+    }
+    if (action === "throw-up") {
+      stopThrowing();
+      virtualKeys.delete("ArrowUp");
       return;
     }
     const key = actionMap[action];
