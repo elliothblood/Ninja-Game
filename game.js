@@ -491,12 +491,13 @@ function updateEnemies() {
     }
 
     if (e.type === "red" && e.shotCooldown <= 0 && Math.random() < 0.03) {
+      const downShot = Math.random() < 0.35;
       projectiles.push({
         x: e.x + e.w / 2,
         y: e.y + e.h / 2,
         r: 6,
-        vx: (player.x > e.x ? 1 : -1) * 5,
-        vy: -0.2,
+        vx: (player.x > e.x ? 1 : -1) * 5 * (downShot ? 0.5 : 1),
+        vy: downShot ? 3.5 : -0.2,
         life: 120,
         rot: 0,
         hostile: true,
@@ -505,12 +506,13 @@ function updateEnemies() {
     }
 
     if (e.type === "boss" && e.shotCooldown <= 0) {
+      const downShot = Math.random() < 0.4;
       projectiles.push({
         x: e.x + e.w / 2,
         y: e.y + e.h / 2,
         r: 7,
-        vx: (player.x > e.x ? 1 : -1) * 5.5,
-        vy: -0.2,
+        vx: (player.x > e.x ? 1 : -1) * 5.5 * (downShot ? 0.5 : 1),
+        vy: downShot ? 4.0 : -0.2,
         life: 140,
         rot: 0,
         hostile: true,
