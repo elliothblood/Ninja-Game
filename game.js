@@ -308,7 +308,7 @@ function throwStar(directionY = 0) {
   const speedBoost = fireRateBoost > 0 ? 1.5 : 0;
   const baseSpeed = 6.5 + speedBoost;
   const verticalSpeed = -0.5 + directionY * baseSpeed;
-  const horizontalSpeed = player.facing * baseSpeed * (directionY !== 0 ? 0.25 : 1);
+  const horizontalSpeed = directionY !== 0 ? 0 : player.facing * baseSpeed;
   projectiles.push({
     x: player.x + player.w / 2 + player.facing * 10,
     y: player.y + player.h / 2,
