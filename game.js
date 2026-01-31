@@ -158,21 +158,24 @@ function spawnEnemies(keepGhosts = true) {
       const x = baseXs[i % baseXs.length] + (Math.random() * 80 - 40);
       const roll = Math.random();
       let type = "yellow";
-      if (roll < 0.16) type = "blue";
-      else if (roll < 0.28) type = "red";
-      else if (roll < 0.42) type = "green";
-      else if (roll < 0.52) type = "pink";
+      if (roll < 0.14) type = "blue";
+      else if (roll < 0.26) type = "red";
+      else if (roll < 0.4) type = "green";
+      else if (roll < 0.5) type = "pink";
+      else if (roll < 0.6) type = "purple";
       const hp = type === "blue" ? 2 : 1;
+      const isPurple = type === "purple";
       enemies.push({
         x: Math.max(40, Math.min(canvas.width - 60, x)),
         y: 0,
-        w: 26,
-        h: 40,
-        vx: 1.1 + Math.random() * 0.8,
+        w: isPurple ? 22 : 26,
+        h: isPurple ? 32 : 40,
+        vx: isPurple ? 2.0 + Math.random() * 0.9 : 1.1 + Math.random() * 0.8,
         vy: 0,
         dir: Math.random() < 0.5 ? -1 : 1,
         onGround: false,
         jumpCooldown: Math.random() * 40,
+        dodgeCooldown: 0,
         type,
         hp,
         shotCooldown: 40 + Math.random() * 60,
@@ -442,6 +445,9 @@ function updateEnemies() {
     if (e.jumpCooldown > 0) {
       e.jumpCooldown -= 1;
     }
+    if (e.dodgeCooldown > 0) {
+      e.dodgeCooldown -= 1;
+    }
     if (e.shotCooldown > 0) {
       e.shotCooldown -= 1;
     }
@@ -532,6 +538,22 @@ function updateEnemies() {
         }
       }
       e.dir = seekDir;
+    } else if (e.type === "purple") {
+      const threat = projectiles.find((p) => {
+        if (p.hostile) return false;
+        const dx = p.x - (e.x + e.w / 2);
+        const dy = p.y - (e.y + e.h / 2);
+        return Math.abs(dx) < 120 && Math.abs(dy) < 30;
+      });
+      if (threat && e.dodgeCooldown <= 0) {
+        e.dir = threat.x < e.x ? 1 : -1;
+        if (e.onGround) {
+          e.vy = -9.5;
+        }
+        e.dodgeCooldown = 35;
+      } else if (Math.random() < 0.02) {
+        e.dir *= -1;
+      }
     } else if (e.type === "boss") {
       e.dir = player.x + player.w / 2 < e.x + e.w / 2 ? -1 : 1;
     }
@@ -622,6 +644,7 @@ function checkHits() {
           else if (e.type === "ghost") score += 180;
           else if (e.type === "blue") score += 200;
           else if (e.type === "pink") score += 140;
+          else if (e.type === "purple") score += 160;
           else score += 120;
           if (e.type === "pink") {
             lives = Math.min(maxLives, lives + 1);
@@ -787,6 +810,7 @@ function drawEnemies() {
     else if (e.type === "red") ctx.strokeStyle = "#ff6b6b";
     else if (e.type === "green") ctx.strokeStyle = "#74d680";
     else if (e.type === "pink") ctx.strokeStyle = "#f472b6";
+    else if (e.type === "purple") ctx.strokeStyle = "#c084fc";
     else if (e.type === "boss") ctx.strokeStyle = "#f97316";
     else ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = e.type === "boss" ? 4 : 3;
